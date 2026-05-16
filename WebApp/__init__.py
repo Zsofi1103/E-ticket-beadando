@@ -16,14 +16,18 @@ app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
 
-config = db_config()
+try:
+    config = db_config()
+    db_port = config.get('port')
+    db_uri = (
+        f"mysql+pymysql://{config['user']}:{config['password']}@{config['host']}:{db_port}/{config['database']}"
+    )
+except Exception as e:
+    # If config.ini is missing or invalid, fall back to SQLite
+    app.logger.warning(f"DB config error: {e}. Falling back to SQLite.")
+    db_uri = "sqlite:///hotelbooking.db"
 
-db_port = config.get('port')
-db_uri = (
-    f"mysql+pymysql://{config['user']}:{config['password']}@{config['host']}:{db_port}/{config['database']}"
-)
-
-# Use SQLite for testing (fallback if testing mode or if MySQL connection fails)
+# Use SQLite for testing (override)
 if os.environ.get("FLASK_ENV") == "testing" or os.environ.get("TESTING") == "true":
     db_uri = "sqlite:///:memory:"
 
