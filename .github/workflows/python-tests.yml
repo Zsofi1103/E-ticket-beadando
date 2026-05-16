@@ -17,8 +17,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+      - name: Create config.ini for tests
+        run: |
+          @"
+          [database]
+          user = test_user
+          password = test_password
+          host = localhost
+          port = 3306
+          database = test_eticket
+          "@ | Out-File -FilePath config.ini -Encoding UTF8
       - name: Run tests
         run: |
+          $env:PYTHONPATH = "backend"
           python auth_test.py
           python reservation_test.py
           python event_category_test.py
