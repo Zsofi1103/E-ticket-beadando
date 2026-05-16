@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Admin - Naplók</h2>
+<p>Az utolsó bejegyzések (legfeljebb 400 sor). Használd a letöltést, ha teljes naplót szeretnél.</p>
+<p><a href="{{ url_for('admin_logs_download') }}">Letöltés (teljes napló)</a></p>
+<pre style="white-space:pre-wrap; background:#111; color:#eee; padding:1rem; border-radius:6px; overflow:auto; max-height:60vh;">{{ tail }}</pre>
+{% endblock %}

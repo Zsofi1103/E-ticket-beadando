@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Regisztráció</h2>
+<form method="post">
+    {{ form.csrf_token }}
+    <div>
+        {{ form.name.label }}<br>
+        {{ form.name(size=40, class_='form-control' ) }}
+        {% for err in form.name.errors %}
+            <div style="color:red">{{ err }}</div>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.email.label }}<br>
+        {{ form.email(size=40, class_='form-control') }}
+        {% for err in form.email.errors %}
+            <div style="color:red">{{ err }}</div>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.password.label }}<br>
+        {{ form.password(size=40, pattern='\S+', class_='form-control') }}
+        {% for err in form.password.errors %}
+            <div style="color:red">{{ err }}</div>
+        {% endfor %}
+    </div>
+    <div>
+        {{ form.password2.label }}<br>
+        {{ form.password2(size=40, pattern='\S+', class_='form-control') }}
+        {% for err in form.password2.errors %}
+            <div style="color:red">{{ err }}</div>
+        {% endfor %}
+    </div>
+    <div>{{ form.submit() }}</div>
+    <p>Van már fiókod? <a href="{{ url_for('login') }}">Bejelentkezés</a></p>
+</form>
+{% endblock %}

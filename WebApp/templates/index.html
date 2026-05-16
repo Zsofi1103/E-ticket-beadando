@@ -1,0 +1,175 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<h2>Események</h2>
+<style>
+    /* Make Price and Start columns a bit wider for readability */
+    .col-price { min-width:120px; text-align:center; }
+    .col-start { min-width:140px; text-align:center; }
+    @media (max-width:800px) {
+        .col-price, .col-start { min-width:80px; }
+    }
+    /* Center the events table horizontally */
+    .events-table { margin: 0 auto; width: auto; }
+    @media (max-width:1000px) { .events-table { width: 100%; } }
+    /* Action links layout: ensure buttons sit inline and control ordering */
+    .action-links { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; }
+    .action-links .act-detail { order: 1; }
+    .action-links .act-edit { order: 2; }
+    .action-links .act-fav { order: 3; }
+    .action-links .act-delete { order: 4; }
+</style>
+{% if is_admin %}
+<p><a href="{{ url_for('event_new') }}">+ Új esemény felvétele</a></p>
+{% endif %}
+
+<form method="get" style="margin-bottom:1rem">
+    <input type="text" name="q" placeholder="Keresés címre..." value="{{ q or '' }}" />
+    <select name="category">
+        <option value="">-- Kategória --</option>
+        {% for c in categories %}
+        <option value="{{ c.id }}" {% if selected_category and c.id==selected_category %}selected{% endif %}>{{ c.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Szűrés</button>
+</form>
+
+<table class="events-table">
+    <thead>
+        <tr>
+            <th>Cím</th>
+            <th>Kategória</th>
+            <th>Helyszín</th>
+            <th>Leírás</th>
+            <th class="col-price">Ár</th>
+            <th class="col-start">Kezdés</th>
+            <th>Műveletek</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for e in events %}
+        <tr>
+            <td class="event-title">{{ e.title }}</td>
+            <td>
+                {% if e.categories and e.categories|length > 0 %}
+                    {%- for c in e.categories -%}
+                        <a class="link-action" href="?category={{ c.id }}">{{ c.name }}</a>{% if not loop.last %}, {% endif %}
+                    {%- endfor -%}
+                {% else %}
+                    <span class="muted">Nincs kategória</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if e.venue %}
+                    {{ e.venue.name }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ e.description }}</td>
+            <td class="col-price">
+                {% if e.price is not none %}
+                    {{ '%.2f'|format(e.price) }} Ft
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td class="col-start">
+                {% if e.start_at %}
+                    {{ e.start_at.strftime('%Y-%m-%d %H:%M') }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                <div class="action-links">
+                    <a class="link-action act-detail" href="{{ url_for('event_detail', event_id=e.id) }}">Részletek</a>
+                    {% if is_admin %}
+                        <a class="link-action act-edit" href="{{ url_for('event_edit', event_id=e.id) }}">Szerkeszt</a>
+                    {% endif %}
+
+                    {% if current_user %}
+                        <form method="post" action="{{ url_for('toggle_favorite', event_id=e.id) }}" class="act-fav">
+                            {{ csrf_form.csrf_token }}
+                            {% if e in current_user.favorites %}
+                                <button type="submit" class="link-action">Eltávolít Kedvencekből</button>
+                            {% else %}
+                                <button type="submit" class="link-action">Kedvenc</button>
+                            {% endif %}
+                        </form>
+                    {% else %}
+                        <a class="link-action act-fav" href="{{ url_for('login') }}">Kedvenchez jelentkezzen be</a>
+                    {% endif %}
+
+                    {% if is_admin %}
+                        <form method="post" action="{{ url_for('event_delete', event_id=e.id) }}" class="act-delete" onsubmit="return confirm('Biztos törlöd az eseményt?');">
+                            {{ csrf_form.csrf_token }}
+                            <button type="submit" class="btn btn-danger">Törlés</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">Nincs megjeleníthető esemény.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if page_res %}
+<p>Oldal: {{ page_res.page }} / {{ page_res.pages }} (Összes: {{ page_res.total }})</p>
+<nav aria-label="Oldalak">
+    <ul style="list-style:none;display:flex;gap:0.5rem;padding:0;align-items:center;">
+        {# First / Prev #}
+        {% if page_res.page > 1 %}
+            <li><a href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">First</a></li>
+            <li><a href="?page={{ page_res.page - 1 }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Prev</a></li>
+        {% else %}
+            <li style="color:#666;">First</li>
+            <li style="color:#666;">Prev</li>
+        {% endif %}
+
+        {# numbered pages (keep them, but limit to a window if many pages) #}
+        {% set start = page_res.page - 2 if page_res.page -2 > 1 else 1 %}
+        {% set end = page_res.page + 2 if page_res.page +2 < page_res.pages else page_res.pages %}
+        {% if start > 1 %}
+            <li>…</li>
+        {% endif %}
+        {% for p in range(start, end + 1) %}
+            <li>
+                {% if p == page_res.page %}
+                    <strong>{{ p }}</strong>
+                {% else %}
+                    <a href="?page={{ p }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">{{ p }}</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        {% if end < page_res.pages %}
+            <li>…</li>
+        {% endif %}
+
+        {# Next / Last #}
+        {% if page_res.page < page_res.pages %}
+            <li><a href="?page={{ page_res.page + 1 }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Next</a></li>
+            <li><a href="?page={{ page_res.pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Last</a></li>
+        {% else %}
+            <li style="color:#666;">Next</li>
+            <li style="color:#666;">Last</li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% if top_events %}
+<section class="top-events">
+    <h3>Top 5 esemény (foglalások szerint)</h3>
+    <div class="top-list">
+        {% for ev, cnt in top_events %}
+        <a class="top-card" href="{{ url_for('event_detail', event_id=ev.id) }}">
+            <div class="title">{{ ev.title }}</div>
+            <div class="meta">{{ cnt }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

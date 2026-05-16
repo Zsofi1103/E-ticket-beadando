@@ -1,0 +1,22 @@
+Rövid, egymondatos leírások a fejlesztői scriptekhez és tesztekhez (a mellékelt képek alapján)
+
+- `assign_default_category.py`: Hiányzó kategóriájú eseményekhez automatikusan hozzárendeli az alapértelmezett kategóriát.
+- `assign_egyeb_cleanup.py`: A „egyéb” kategóriába sorolt eseményeket takarítja/tisztítja (pl. áthelyezés vagy metaadat-javítás).
+- `auth_test.py`: Az alkalmazás hitelesítési folyamatait (regisztráció, bejelentkezés) teszteli.
+- `cleanup_test_events.py`: Fejlesztéshez használt teszt eseményeket töröl vagy alapállapotba állít.
+- `create_admin.py`: Adminisztrátor felhasználót hoz létre az adatbázisban.
+- `create_main_categories.py`: Létrehozza a fő kategóriákat (seed adatokat) az adatbázisban.
+- `debug_request.py`: Teszt HTTP kérést küld végpontokhoz hibakeresési célból.
+- `event_category_test.py`: Ellenőrzi az események és kategóriák közötti kapcsolatokat.
+- `profile_test.py`: A felhasználói profil funkciókat teszteli.
+- `recreate_test_events.py`: Újra létrehozza a teszt eseményeket seed vagy dump alapján.
+- `remove_duplicate_events.py`: Megkeresi és eltávolítja a duplikált eseményeket.
+- `render_event_detail.py`: Esemény részlet nézetet renderel hibakereséshez (sablon/formatálás ellenőrzés).
+- `reservation_test.py`: Foglalási műveleteket (létrehozás, törlés) teszteli.
+- `restore_and_clean_events.py`: Események visszaállítását végzi dumpból és megtisztítja az adatokat.
+- `run_event_new_debug.py`: Szimulálja és hibakeresi az új esemény létrehozását (route teszt).
+- `seed_sample_data.py`: Mintaadatokat tölt be az adatbázisba a fejlesztéshez.
+- `show_event_categories.py`: Kilistázza és megjeleníti az eseménykategóriákat ellenőrzés céljából.
+- `summarize_dump.py`: Adat-dumpot elemzi és összegző jelentést készít.
+- `test_post_event.py`: Automatizált teszt, amely HTTP POST-tal létrehoz egy eseményt az endpoint teszteléséhez.
+- `top_events_test.py`: A legtöbbet foglalt események lekérdezési/összesítési logikáját ellenőrzi.

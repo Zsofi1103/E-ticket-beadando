@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .admin-panel {
+        background: #1f1f1f;
+        color: #e6e6e6;
+        padding: 2.2rem;
+        border-radius: 10px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.45) inset, 0 6px 20px rgba(0,0,0,0.35);
+        max-width: 920px;
+    }
+    .admin-panel h2 { font-size: 2.6rem; margin: 0 0 0.8rem 0; color: #f2f2f2; letter-spacing: -0.6px; }
+    .admin-panel p { color: #cfcfcf; margin-bottom:1.2rem; font-size:1.05rem; }
+
+    .admin-list { list-style:none; padding:0; margin:0; display:block; }
+    .admin-list li { margin: 0.45rem 0; }
+
+    .admin-item {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:1rem;
+        padding:0.85rem 1rem;
+        border-radius:8px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+        transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
+        border: 1px solid rgba(255,255,255,0.03);
+        text-decoration: none;
+        color: inherit;
+        display:flex;
+    }
+    .admin-item:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.45); background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)); }
+
+    .admin-item-left { display:flex; align-items:center; gap:0.9rem; }
+    .admin-link-text { color: #f6b3e6; font-weight:700; font-size:1.05rem; }
+    .admin-item:hover .admin-link-text { color: #ffd9f8; }
+
+    .admin-badge {
+        background: rgba(214,160,216,0.12);
+        color: #eec7ee;
+        padding: 0.18rem 0.5rem;
+        border-radius: 999px;
+        font-weight:700;
+        font-size:0.95rem;
+        min-width: 36px;
+        text-align:center;
+    }
+
+    .admin-item .secondary { font-weight:600; color:#ffdfeff0; }
+
+    @media (max-width:700px) {
+        .admin-panel { padding:1.2rem; }
+        .admin-item { padding:0.6rem; }
+        .admin-link-text { font-size:1rem; }
+    }
+</style>
+
+<div class="admin-panel">
+    <h2>Admin</h2>
+    <p>Itt kezelheted az oldal adminisztrációs feladatait.</p>
+    <ul class="admin-list">
+        <li>
+            <a class="admin-item" href="{{ url_for('category_list') }}">
+                <div class="admin-item-left">
+                    <span class="admin-link-text">Kategóriák</span>
+                </div>
+                <div class="admin-badge">{{ cat_count }}</div>
+            </a>
+        </li>
+        <li>
+            <a class="admin-item" href="{{ url_for('admin_reservations') }}">
+                <div class="admin-item-left">
+                    <span class="admin-link-text">Foglalások</span>
+                </div>
+                <div class="admin-badge">{{ res_count }}</div>
+            </a>
+        </li>
+        <li>
+            <a class="admin-item" href="{{ url_for('admin_logs') }}">
+                <div class="admin-item-left">
+                    <span class="admin-link-text">Naplók megtekintése</span>
+                </div>
+                <div style="width:36px"></div>
+            </a>
+        </li>
+        <li>
+            <a class="admin-item" href="{{ url_for('event_new') }}">
+                <div class="admin-item-left">
+                    <span class="admin-link-text secondary">Új esemény létrehozása</span>
+                </div>
+                <div style="width:36px"></div>
+            </a>
+        </li>
+        <li>
+            <a class="admin-item" href="{{ url_for('index') }}">
+                <div class="admin-item-left">
+                    <span class="admin-link-text">Események szerkesztése</span>
+                </div>
+                <div class="admin-badge">{{ event_count }}</div>
+            </a>
+        </li>
+        <li>
+            <a class="admin-item" href="{{ url_for('admin_venues') }}">
+                <div class="admin-item-left">
+                    <span class="admin-link-text">Helyszínek</span>
+                </div>
+                <div style="width:36px"></div>
+            </a>
+        </li>
+    </ul>
+</div>
+
+{% endblock %}

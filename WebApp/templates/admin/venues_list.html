@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Helyszínek</h2>
+<p><a href="{{ url_for('admin_venue_new') }}">+ Új helyszín</a></p>
+<form method="get" style="margin-bottom:0.5rem">
+    <input type="text" name="q" placeholder="Keresés..." value="{{ q or '' }}" />
+    <button type="submit">Szűrés</button>
+</form>
+<table>
+    <thead>
+        <tr><th>Név</th><th>Cím</th><th>Kapacitás</th><th>Események</th><th>Műveletek</th></tr>
+    </thead>
+    <tbody>
+        {% for v in venues %}
+        <tr>
+            <td>{{ v.name }}</td>
+            <td>{{ v.address or '-' }}</td>
+            <td>{{ v.capacity or '-' }}</td>
+            <td>{{ v.events|length }}</td>
+            <td>
+                <div class="action-links">
+                    <a class="link-action" href="{{ url_for('admin_venue_edit', venue_id=v.id) }}">Szerkeszt</a>
+                    <form method="post" action="{{ url_for('admin_venue_delete', venue_id=v.id) }}" style="display:inline" onsubmit="return confirm('Biztos törlöd a helyszínt?');">
+                        {{ csrf_form.csrf_token }}
+                        <button type="submit" class="btn btn-danger">Törlés</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if page_res %}
+<p>Oldal: {{ page_res.page }} / {{ page_res.pages }} (Összes: {{ page_res.total }})</p>
+<nav>
+    <ul style="list-style:none;display:flex;gap:0.5rem;padding:0;align-items:center;">
+        {% if page_res.page > 1 %}
+            <li><a href="?page=1{% if q %}&q={{ q }}{% endif %}">First</a></li>
+            <li><a href="?page={{ page_res.page - 1 }}{% if q %}&q={{ q }}{% endif %}">Prev</a></li>
+        {% else %}
+            <li style="color:#666">First</li>
+            <li style="color:#666">Prev</li>
+        {% endif %}
+        {% set start = page_res.page - 2 if page_res.page -2 > 1 else 1 %}
+        {% set end = page_res.page + 2 if page_res.page +2 < page_res.pages else page_res.pages %}
+        {% if start > 1 %}<li>…</li>{% endif %}
+        {% for p in range(start, end + 1) %}
+            <li>
+                {% if p == page_res.page %}
+                    <strong>{{ p }}</strong>
+                {% else %}
+                    <a href="?page={{ p }}{% if q %}&q={{ q }}{% endif %}">{{ p }}</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        {% if end < page_res.pages %}<li>…</li>{% endif %}
+        {% if page_res.page < page_res.pages %}
+            <li><a href="?page={{ page_res.page + 1 }}{% if q %}&q={{ q }}{% endif %}">Next</a></li>
+            <li><a href="?page={{ page_res.pages }}{% if q %}&q={{ q }}{% endif %}">Last</a></li>
+        {% else %}
+            <li style="color:#666">Next</li>
+            <li style="color:#666">Last</li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

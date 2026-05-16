@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Profil szerkesztése</h2>
+<form method="post">
+    {{ form.csrf_token }}
+    <div>
+        {{ form.name.label }}<br>
+        {{ form.name(size=40) }}
+    </div>
+    <hr>
+    <p>Ha jelszót szeretnél változtatni, add meg a jelenlegi jelszavad és az újat:</p>
+    <div>
+        {{ form.current_password.label }}<br>
+        {{ form.current_password(size=40, id='current-password') }}
+        <label style="margin-left:0.5rem"><input type="checkbox" id="show-profile-passwords"> Jelszó megjelenítése</label>
+    </div>
+    <div>
+        {{ form.new_password.label }}<br>
+        {{ form.new_password(size=40, id='new-password') }}
+    </div>
+    <div>
+        {{ form.new_password2.label }}<br>
+        {{ form.new_password2(size=40, id='new-password2') }}
+    </div>
+    <div>
+        {{ form.submit() }}
+        <a href="{{ url_for('profile') }}">Vissza</a>
+    </div>
+</form>
+<script>
+document.getElementById('show-profile-passwords').addEventListener('change', function(){
+    var ids = ['current-password','new-password','new-password2'];
+    ids.forEach(function(i){
+        var el = document.getElementById(i);
+        if(!el) return;
+        el.type = document.getElementById('show-profile-passwords').checked ? 'text' : 'password';
+    });
+});
+</script>
+{% endblock %}

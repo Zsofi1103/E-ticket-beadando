@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<a href="{{ url_for('event_detail', event_id=event.id) }}">Vissza</a>
+<h2>{% if add %}Új időpont hozzáadása{% else %}Időpont szerkesztése{% endif %} — {{ event.title }}</h2>
+
+<form method="post">
+    {{ form.csrf_token }}
+    <div class="form-row">
+        {{ form.year.label }}
+        {{ form.year(class='input-field') }}
+        {% if form.year.errors %}<div class="field-error">{{ form.year.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-row">
+        {{ form.month.label }}
+        {{ form.month(class='input-field') }}
+        {% if form.month.errors %}<div class="field-error">{{ form.month.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-row">
+        {{ form.day.label }}
+        {{ form.day(class='input-field') }}
+        {% if form.day.errors %}<div class="field-error">{{ form.day.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-row">
+        {{ form.hour.label }}
+        {{ form.hour(class='input-field') }}
+        {% if form.hour.errors %}<div class="field-error">{{ form.hour.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-row">
+        {{ form.minute.label }}
+        {{ form.minute(class='input-field') }}
+        {% if form.minute.errors %}<div class="field-error">{{ form.minute.errors[0] }}</div>{% endif %}
+    </div>
+    <div class="form-row">
+        {{ form.submit(class='btn') }}
+    </div>
+    </form>
+
+{% endblock %}

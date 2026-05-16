@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Profil: {{ user.name }}</h2>
+<p>{{ user.email }}</p>
+<p><a href="{{ url_for('profile_edit') }}">Profil szerkesztése</a></p>
+<h3>Foglalásaid</h3>
+{% if reservations %}
+<ul>
+    {% for r in reservations %}
+    <li>{{ r.event.title }} ({{ r.created_at }})
+        <form method="post" action="{{ url_for('reservation_delete', res_id=r.id) }}" style="display:inline" onsubmit="return confirm('Biztosan lemondod?');">
+            {{ reservation_form.csrf_token }}
+            <button type="submit">Lemondás</button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% if page_res %}
+<p>Oldal: {{ page_res.page }} / {{ page_res.pages }} (Összes: {{ page_res.total }})</p>
+<nav>
+    <ul style="list-style:none;display:flex;gap:0.5rem;padding:0;align-items:center;">
+        {% if page_res.page > 1 %}
+            <li><a href="?page=1">First</a></li>
+            <li><a href="?page={{ page_res.page - 1 }}">Prev</a></li>
+        {% else %}
+            <li style="color:#666">First</li>
+            <li style="color:#666">Prev</li>
+        {% endif %}
+
+        {% set start = page_res.page - 2 if page_res.page -2 > 1 else 1 %}
+        {% set end = page_res.page + 2 if page_res.page +2 < page_res.pages else page_res.pages %}
+        {% if start > 1 %}<li>…</li>{% endif %}
+        {% for p in range(start, end + 1) %}
+            <li>
+                {% if p == page_res.page %}
+                    <strong>{{ p }}</strong>
+                {% else %}
+                    <a href="?page={{ p }}">{{ p }}</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+        {% if end < page_res.pages %}<li>…</li>{% endif %}
+
+        {% if page_res.page < page_res.pages %}
+            <li><a href="?page={{ page_res.page + 1 }}">Next</a></li>
+            <li><a href="?page={{ page_res.pages }}">Last</a></li>
+        {% else %}
+            <li style="color:#666">Next</li>
+            <li style="color:#666">Last</li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% else %}
+<p>Nincsenek foglalásaid.</p>
+{% endif %}
+{% endblock %}

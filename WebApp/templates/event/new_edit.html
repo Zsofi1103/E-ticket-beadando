@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<a href="{{ url_for('index') }}">Vissza</a>
+{% if add %}
+<h2>Esemény felvitele</h2>
+{% endif %}
+<form method="post">
+    {{ form.csrf_token }}
+    <div>
+        {{ form.title.label }}<br>
+        {{ form.title(size=40) }}
+        {% for err in form.title.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+    </div>
+    <div>
+        {{ form.description.label }}<br>
+        {{ form.description() }}
+        {% for err in form.description.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+    </div>
+    <div>
+        {{ form.category_id.label }}<br>
+        {{ form.category_id() }}
+        {% for err in form.category_id.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+    </div>
+    <div>
+        {{ form.venue_id.label }}<br>
+        {{ form.venue_id() }}
+        {% for err in form.venue_id.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+    </div>
+    <div>
+        {{ form.price.label }}<br>
+        {{ form.price() }}
+        {% for err in form.price.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+    </div>
+    <div>
+        {{ form.start_at.label }}<br>
+        {{ form.start_at(type='datetime-local') }}
+        {% for err in form.start_at.errors %}<div style="color:red">{{ err }}</div>{% endfor %}
+    </div>
+    <div>{{ form.submit() }}</div>
+</form>
+{% endblock %}

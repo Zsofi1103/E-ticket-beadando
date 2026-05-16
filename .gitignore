@@ -1,0 +1,16 @@
+/.venv/
+/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+env/
+.env
+/.vscode/
+flask_errors.log
+eticket_dump_before_restore.json
+*.sqlite3
+*.db
+*.log
+config.ini
+/.venv/
+.DS_Store

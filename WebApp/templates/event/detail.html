@@ -1,0 +1,103 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<a href="{{ url_for('index') }}">Vissza</a>
+
+{% if event %}
+<table>
+    <tbody>
+        <tr>
+            <th>Cím</th>
+            <td class="event-title">{{ event.title }}</td>
+        </tr>
+        <tr>
+            <th>Leírás</th>
+            <td>{{ event.description }}</td>
+        </tr>
+        <tr>
+            <th>Kategória</th>
+            <td>
+                {% if event.categories and event.categories|length > 0 %}
+                    {%- for c in event.categories -%}
+                        <a class="link-action" href="{{ url_for('index') }}?category={{ c.id }}">{{ c.name }}</a>{% if not loop.last %}, {% endif %}
+                    {%- endfor -%}
+                {% else %}
+                    Nincs kategória
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Helyszín</th>
+            <td>
+                {% if event.venue %}
+                    {{ event.venue.name }}{% if event.venue.address %} — {{ event.venue.address }}{% endif %}
+                {% else %}
+                    Nincs megadva
+                {% endif %}
+            </td>
+        </tr>
+        {# Removed separate EventTime list: keep single `Kezdés` only #}
+        <tr>
+            <th>Létrehozva</th>
+            <td>{{ event.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+        </tr>
+        <tr>
+            <th>Ár</th>
+            <td>
+                {% if event.price is not none %}
+                    {{ '%.2f'|format(event.price) }} Ft
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Kezdés</th>
+            <td>
+                {% if event.start_at %}
+                    {{ event.start_at.strftime('%Y-%m-%d %H:%M') }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+        </tr>
+    </tbody>
+</table>
+    <p>Foglalások száma: {{ event.reservations|length }}</p>
+    {% if session.get('user_id') %}
+        {% set user_id = session.get('user_id') %}
+        {% set reserved = false %}
+        {% for r in event.reservations %}
+            {% if r.user_id == user_id %}
+                {% set reserved = true %}
+            {% endif %}
+        {% endfor %}
+        {% if not reserved %}
+            <form method="post" action="{{ url_for('reserve_event', event_id=event.id) }}">
+                {{ reservation_form.csrf_token }}
+                <button type="submit">Foglalás</button>
+            </form>
+        {% else %}
+            <p>Ön már foglalt erre az eseményre.</p>
+        {% endif %}
+    {% else %}
+        <p><a href="{{ url_for('login') }}">Jelentkezz be</a> a foglaláshoz.</p>
+    {% endif %}
+
+    {# Favorite button - reuse reservation_form for CSRF token #}
+    {% if session.get('user_id') %}
+        <form method="post" action="{{ url_for('toggle_favorite', event_id=event.id) }}">
+            {{ reservation_form.csrf_token }}
+            {% if event in current_user.favorites %}
+                <button type="submit">Eltávolít a kedvencekből</button>
+            {% else %}
+                <button type="submit">Kedvenc</button>
+            {% endif %}
+        </form>
+    {% else %}
+        <p><a href="{{ url_for('login') }}">Jelentkezz be</a> a kedvencekhez.</p>
+    {% endif %}
+{% else %}
+    <p>Nincs megjeleníthető esemény részlet.</p>
+{% endif %}
+
+{% endblock %}
