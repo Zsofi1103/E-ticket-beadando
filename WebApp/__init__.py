@@ -44,5 +44,10 @@ app.logger.addHandler(handler)
 
 from WebApp import models, routes  # noqa: E402,F401
 
+# Initialize database schema in testing mode (SQLite :memory:)
+if os.environ.get("TESTING") == "true":
+    with app.app_context():
+        db.create_all()
+
 # NOTE: admin seeding is performed in the Alembic migration file to ensure reproducible
 # environments. The startup seeding was removed to avoid duplicate/ambiguous seeds.
