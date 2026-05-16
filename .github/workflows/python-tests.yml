@@ -20,7 +20,7 @@ jobs:
       - name: Create config.ini for tests
         run: |
           @"
-          [database]
+          [Database]
           user = test_user
           password = test_password
           host = localhost
