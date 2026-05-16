@@ -193,55 +193,32 @@
     {% endif %}
 </div>
 {% endif %}
-        {% if page_res.page > 1 %}
-            <li><a href="?page=1{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">First</a></li>
-            <li><a href="?page={{ page_res.page - 1 }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Prev</a></li>
-        {% else %}
-            <li style="color:#666;">First</li>
-            <li style="color:#666;">Prev</li>
-        {% endif %}
 
-        {# numbered pages (keep them, but limit to a window if many pages) #}
-        {% set start = page_res.page - 2 if page_res.page -2 > 1 else 1 %}
-        {% set end = page_res.page + 2 if page_res.page +2 < page_res.pages else page_res.pages %}
-        {% if start > 1 %}
-            <li>…</li>
-        {% endif %}
-        {% for p in range(start, end + 1) %}
-            <li>
-                {% if p == page_res.page %}
-                    <strong>{{ p }}</strong>
-                {% else %}
-                    <a href="?page={{ p }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">{{ p }}</a>
-                {% endif %}
-            </li>
-        {% endfor %}
-        {% if end < page_res.pages %}
-            <li>…</li>
-        {% endif %}
-
-        {# Next / Last #}
-        {% if page_res.page < page_res.pages %}
-            <li><a href="?page={{ page_res.page + 1 }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Next</a></li>
-            <li><a href="?page={{ page_res.pages }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if q %}&q={{ q }}{% endif %}">Last</a></li>
-        {% else %}
-            <li style="color:#666;">Next</li>
-            <li style="color:#666;">Last</li>
-        {% endif %}
-    </ul>
-</nav>
-{% endif %}
+<!-- Top Events Section -->
 {% if top_events %}
-<section class="top-events">
-    <h3>Top 5 esemény (foglalások szerint)</h3>
-    <div class="top-list">
+<section class="top-events-carousel mt-5">
+    <h2 class="section-title">🔥 Top 5 Ereignis (foglalások szerint)</h2>
+    <div class="row">
         {% for ev, cnt in top_events %}
-        <a class="top-card" href="{{ url_for('event_detail', event_id=ev.id) }}">
-            <div class="title">{{ ev.title }}</div>
-            <div class="meta">{{ cnt }}</div>
-        </a>
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="top-event-item">
+                <div class="top-event-badge">
+                    {{ loop.index }}. hely
+                </div>
+                <div class="top-event-info">
+                    <div class="top-event-title">{{ ev.title }}</div>
+                    <div class="top-event-price">
+                        <i class="fas fa-bookmark"></i> {{ cnt }} foglalás
+                    </div>
+                </div>
+                <a href="{{ url_for('event_detail', event_id=ev.id) }}" class="btn btn-primary btn-small">
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
         {% endfor %}
     </div>
 </section>
 {% endif %}
+
 {% endblock %}
