@@ -13,7 +13,8 @@ static_dir = os.path.join(repo_root, 'frontend', 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
-app.config["SECRET_KEY"] = "L36jw2LYc28e56ziy9xjHX4p4kgENdzU"
+# Use an environment variable for secrets. Do NOT commit real secrets to git.
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
 
 config = db_config()
