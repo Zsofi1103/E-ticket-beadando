@@ -1,8 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 from WebApp.models.event import Event
 from typing import Optional
-from WebApp import db
 from WebApp.models.category import Category
+
 
 class EventManager:
     def __init__(self, db: SQLAlchemy):
@@ -20,19 +20,37 @@ class EventManager:
             ).distinct()
         total = query.count()
         pages = (total + per_page - 1) // per_page if per_page else 1
-        items = query.offset((page - 1) * per_page).limit(per_page).all()
-        return {"items": items, "total": total, "page": page, "per_page": per_page, "pages": pages}
+        items = (
+            query.offset((page - 1) * per_page)
+            .limit(per_page)
+            .all()
+        )
+
+        return {
+            "items": items,
+            "total": total,
+            "page": page,
+            "per_page": per_page,
+            "pages": pages,
+        }
 
     def top_events(self, limit: int = 5, min_reservations: int = 5):
       
         from WebApp.models.reservation import Reservation
         from sqlalchemy import func
 
-        q = self.__db.session.query(
-            Event,
-            func.count(Reservation.id).label('res_count')
-        ).outerjoin(Reservation, Reservation.event_id == Event.id)
-        q = q.group_by(Event.id).having(func.count(Reservation.id) >= min_reservations).order_by(func.count(Reservation.id).desc()).limit(limit)
+        q = (
+            self.__db.session.query(
+                Event,
+                func.count(Reservation.id).label("res_count"),
+            )
+            .outerjoin(Reservation, Reservation.event_id == Event.id)
+            .group_by(Event.id)
+            .having(func.count(Reservation.id) >= min_reservations)
+            .order_by(func.count(Reservation.id).desc())
+            .limit(limit)
+        )
+
         return q.all()
 
     def get_event(self, id: int):
