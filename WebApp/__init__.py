@@ -6,10 +6,9 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 
-# Serve templates and static files from the repository-level `frontend` folder
-repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-template_dir = os.path.join(repo_root, 'frontend', 'templates')
-static_dir = os.path.join(repo_root, 'frontend', 'static')
+# Serve templates and static files from WebApp directory
+template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+static_dir = os.path.join(os.path.dirname(__file__), 'static')
 
 app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
 
@@ -35,7 +34,7 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 
-log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 log_path = os.path.join(log_dir, 'flask_errors.log')
 handler = RotatingFileHandler(log_path, maxBytes=1024*1024, backupCount=3)
 handler.setLevel(logging.WARNING)

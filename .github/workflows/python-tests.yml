@@ -29,7 +29,6 @@ jobs:
           "@ | Out-File -FilePath config.ini -Encoding UTF8
       - name: Run tests
         run: |
-          $env:PYTHONPATH = "backend"
           python auth_test.py
           python reservation_test.py
           python event_category_test.py
