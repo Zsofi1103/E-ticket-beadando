@@ -3,8 +3,6 @@ from wtforms import StringField, SubmitField, TextAreaField, SelectField, Decima
 from wtforms.validators import DataRequired, Optional, Length, NumberRange
 
 
-from wtforms import Field
-
 class EventForm(FlaskForm):
     title = StringField('Esemény címe', validators=[DataRequired(), Length(min=1, max=255)])
     description = TextAreaField('Leírás', validators=[Optional(), Length(max=1000)])
