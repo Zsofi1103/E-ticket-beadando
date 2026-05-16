@@ -1,4 +1,4 @@
-﻿from flask import render_template, redirect, url_for, flash, request, session, send_file, make_response, jsonify
+﻿from flask import render_template, redirect, url_for, flash, request, session, send_file, jsonify
 from WebApp import db, app
 from WebApp.forms.eventform import EventForm
 from WebApp.forms.authforms import RegistrationForm, LoginForm, ProfileForm
