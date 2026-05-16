@@ -1,3 +1,7 @@
+import os
+
+os.environ["TESTING"] = "true"
+
 from WebApp import app, db
 from WebApp.models.user import User
 from WebApp.models.event import Event

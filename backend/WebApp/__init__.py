@@ -23,6 +23,11 @@ db_port = config.get('port')
 db_uri = (
     f"mysql+pymysql://{config['user']}:{config['password']}@{config['host']}:{db_port}/{config['database']}"
 )
+
+# Use SQLite for testing (fallback if testing mode or if MySQL connection fails)
+if os.environ.get("FLASK_ENV") == "testing" or os.environ.get("TESTING") == "true":
+    db_uri = "sqlite:///:memory:"
+
 app.config["SQLALCHEMY_DATABASE_URI"] = db_uri
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
