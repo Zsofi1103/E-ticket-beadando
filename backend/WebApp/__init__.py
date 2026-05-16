@@ -38,6 +38,7 @@ formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(path
 handler.setFormatter(formatter)
 app.logger.addHandler(handler)
 
-from WebApp import models, routes
+from WebApp import models, routes  # noqa: E402,F401
+
 # NOTE: admin seeding is performed in the Alembic migration file to ensure reproducible
 # environments. The startup seeding was removed to avoid duplicate/ambiguous seeds.
