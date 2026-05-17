@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Számla - Hotel Szállás{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg" id="invoice">
+                <div class="card-body">
+                    <!-- Fejléc -->
+                    <div class="text-center mb-4 pb-4 border-bottom">
+                        <h1><strong>Hotel Szállás</strong></h1>
+                        <p class="mb-0">Szállodai számla</p>
+                    </div>
+                    
+                    <!-- Számla adatok -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6><strong>Számla szám:</strong></h6>
+                            <p>#{{ booking.invoice.id }} / {{ now.year }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h6><strong>Kiállítás dátuma:</strong></h6>
+                            <p>{{ now.strftime('%Y. %m. %d.') }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Vendég adatok -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h6><strong>Vendég:</strong></h6>
+                            <p>
+                                {{ booking.user.name }}<br>
+                                Email: {{ booking.user.email }}<br>
+                                {% if booking.user.phone %}
+                                    Tel: {{ booking.user.phone }}<br>
+                                {% endif %}
+                                {% if booking.user.address %}
+                                    Cím: {{ booking.user.address }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h6><strong>Fizetési státusz:</strong></h6>
+                            <p>
+                                {% if booking.invoice.paid %}
+                                    <span class="badge bg-success">Kifizetett</span><br>
+                                    <small>{{ booking.invoice.paid_at.strftime('%Y. %m. %d.') if booking.invoice.paid_at else 'N/A' }}</small>
+                                {% else %}
+                                    <span class="badge bg-warning">Függőben</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Foglalási adatok -->
+                    <h6><strong>Foglalási adatok</strong></h6>
+                    <div class="mb-4">
+                        <p>
+                            <strong>Szoba:</strong> {{ booking.room.room_number }}<br>
+                            <strong>Bejelentkezés:</strong> {{ booking.check_in.strftime('%Y. %m. %d.') }}<br>
+                            <strong>Kijelentkezés:</strong> {{ booking.check_out.strftime('%Y. %m. %d.') }}<br>
+                            <strong>Vendégek száma:</strong> {{ booking.guests_count }} fő<br>
+                            <strong>Éjszakák száma:</strong> {{ booking.calculate_nights() }}
+                        </p>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Tétel lista -->
+                    <h6 class="mb-3"><strong>Tétel lista</strong></h6>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Megnevezés</th>
+                                    <th class="text-end">Egységár</th>
+                                    <th class="text-center">Mennyiség</th>
+                                    <th class="text-end">Összesen</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Szoba: {{ booking.room.room_number }}</td>
+                                    <td class="text-end">{{ "{:,}".format(booking.room.price_per_night|int) }} Ft</td>
+                                    <td class="text-center">{{ booking.calculate_nights() }} éj</td>
+                                    <td class="text-end">{{ "{:,}".format(booking.room.price_per_night * booking.calculate_nights()|int) }} Ft</td>
+                                </tr>
+                                
+                                {% for service in booking.services %}
+                                    <tr>
+                                        <td>{{ service.service.name }}</td>
+                                        <td class="text-end">{{ "{:,}".format(service.service.price|int) }} Ft</td>
+                                        <td class="text-center">{{ service.quantity }}</td>
+                                        <td class="text-end">{{ "{:,}".format(service.service.price * service.quantity|int) }} Ft</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Összegzés -->
+                    <div class="row justify-content-end mb-4">
+                        <div class="col-md-4">
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Nettó:</strong></td>
+                                            <td class="text-end"><strong>{{ "{:,}".format(booking.total_price|int) }} Ft</strong></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>ÁFA (27%):</strong></td>
+                                            <td class="text-end"><strong>{{ "{:,}".format(booking.total_price * 0.27|int) }} Ft</strong></td>
+                                        </tr>
+                                        <tr class="table-active">
+                                            <td><strong>Bruttó (fizetendő):</strong></td>
+                                            <td class="text-end"><strong class="text-success">{{ "{:,}".format(booking.total_price * 1.27|int) }} Ft</strong></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Megjegyzések -->
+                    <div class="text-center text-muted small">
+                        <p class="mb-1">Köszönjük, hogy a Hotel Szálláson szállt meg!</p>
+                        <p>Információ: info@hotelszallas.hu</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Nyomtatás gomb -->
+            <div class="mt-4 text-center">
+                <button type="button" class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i> Nyomtatás / PDF-ként mentés
+                </button>
+                <a href="{{ url_for('guest.booking_detail', booking_id=booking.id) }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Vissza
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style media="print">
+    body {
+        margin: 0;
+        padding: 10mm;
+    }
+    
+    .btn {
+        display: none !important;
+    }
+    
+    .card {
+        box-shadow: none !important;
+        border: none !important;
+    }
+</style>
+{% endblock %}

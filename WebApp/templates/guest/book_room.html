@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Szoba foglalása - Hotel Szállás{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-door-open"></i> Szoba {{ room.room_number }} foglalása
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Szoba adatok</h5>
+                            <p>
+                                <strong>Szobaszám:</strong> {{ room.room_number }}<br>
+                                <strong>Kapacitás:</strong> {{ room.capacity }} fő<br>
+                                <strong>Ár:</strong> {{ "{:,}".format(room.price_per_night|int) }} Ft / éj
+                            </p>
+                            
+                            {% if room.description %}
+                                <p>
+                                    <strong>Leírás:</strong><br>
+                                    {{ room.description }}
+                                </p>
+                            {% endif %}
+                            
+                            {% if room.equipment %}
+                                <p>
+                                    <strong>Felszereltség:</strong><br>
+                                    {% for equipment in room.equipment.split(',') %}
+                                        <span class="badge bg-secondary">{{ equipment.strip() }}</span>
+                                    {% endfor %}
+                                </p>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <form method="POST">
+                                <div class="mb-3">
+                                    <label for="check_in" class="form-label"><strong>Bejelentkezés</strong></label>
+                                    <input type="date" class="form-control" id="check_in" name="check_in" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="check_out" class="form-label"><strong>Kijelentkezés</strong></label>
+                                    <input type="date" class="form-control" id="check_out" name="check_out" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="guests_count" class="form-label"><strong>Vendégek száma</strong></label>
+                                    <input type="number" class="form-control" id="guests_count" name="guests_count"
+                                           value="1" min="1" max="{{ room.capacity }}" required>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <small>
+                                        <strong>Ár összesen:</strong> 
+                                        <span id="total_price" class="text-success">0 Ft</span>
+                                    </small>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100 btn-lg">
+                                    <i class="fas fa-check"></i> Foglalás véglegesítése
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <a href="{{ url_for('guest.search_rooms') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Vissza a kereséshez
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInInput = document.getElementById('check_in');
+    const checkOutInput = document.getElementById('check_out');
+    const pricePerNight = {{ room.price_per_night|int }};
+    
+    function calculatePrice() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+        
+        if (checkIn && checkOut && checkOut > checkIn) {
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            const totalPrice = nights * pricePerNight;
+            document.getElementById('total_price').textContent = 
+                totalPrice.toLocaleString('hu-HU') + ' Ft';
+        }
+    }
+    
+    checkInInput.addEventListener('change', calculatePrice);
+    checkOutInput.addEventListener('change', calculatePrice);
+});
+</script>
+{% endblock %}

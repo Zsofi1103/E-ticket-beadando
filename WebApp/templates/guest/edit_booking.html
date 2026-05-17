@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Foglalás módosítása - Hotel Szállás{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-edit"></i> Foglalás #{{ booking.id }} módosítása
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <form method="POST">
+                        <h5 class="mb-3">Foglalás adatai</h5>
+                        
+                        <div class="alert alert-info">
+                            <strong>Szoba:</strong> {{ booking.room.room_number }} 
+                            ({{ "{:,}".format(booking.room.price_per_night|int) }} Ft/éj)
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="check_in" class="form-label"><strong>Bejelentkezés</strong></label>
+                                <input type="date" class="form-control" id="check_in" name="check_in" 
+                                       value="{{ booking.check_in.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="check_out" class="form-label"><strong>Kijelentkezés</strong></label>
+                                <input type="date" class="form-control" id="check_out" name="check_out" 
+                                       value="{{ booking.check_out.strftime('%Y-%m-%d') }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="guests_count" class="form-label"><strong>Vendégek száma</strong></label>
+                            <input type="number" class="form-control" id="guests_count" name="guests_count"
+                                   value="{{ booking.guests_count }}" min="1" max="{{ booking.room.capacity }}" required>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <p class="mb-1">
+                                <strong>Ár:</strong> 
+                                <span id="total_price" class="text-success">{{ "{:,}".format(booking.total_price|int) }}</span> Ft
+                            </p>
+                            <small class="text-muted">
+                                (<span id="nights">{{ booking.calculate_nights() }}</span> éj × 
+                                {{ "{:,}".format(booking.room.price_per_night|int) }} Ft)
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-check"></i> Módosítás véglegesítése
+                            </button>
+                            <a href="{{ url_for('guest.booking_detail', booking_id=booking.id) }}" 
+                               class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Mégse
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkInInput = document.getElementById('check_in');
+    const checkOutInput = document.getElementById('check_out');
+    const pricePerNight = {{ booking.room.price_per_night|int }};
+    
+    function calculatePrice() {
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+        
+        if (checkIn && checkOut && checkOut > checkIn) {
+            const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+            const totalPrice = nights * pricePerNight;
+            document.getElementById('total_price').textContent = 
+                totalPrice.toLocaleString('hu-HU');
+            document.getElementById('nights').textContent = nights;
+        }
+    }
+    
+    checkInInput.addEventListener('change', calculatePrice);
+    checkOutInput.addEventListener('change', calculatePrice);
+});
+</script>
+{% endblock %}

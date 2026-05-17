@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Szobakezelés</h1>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('admin.room_new') }}" style="display: inline-block; padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+        ➕ Új szoba
+    </a>
+    <a href="{{ url_for('index') }}" style="display: inline-block; padding: 10px 20px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 5px; margin-left: 10px;">
+        Vissza
+    </a>
+</div>
+
+{% if rooms.items %}
+<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+    <thead>
+        <tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+            <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6;">Szobaszám</th>
+            <th style="padding: 12px; text-align: left; border: 1px solid #dee2e6;">Helyszín</th>
+            <th style="padding: 12px; text-align: center; border: 1px solid #dee2e6;">Kapacitás</th>
+            <th style="padding: 12px; text-align: right; border: 1px solid #dee2e6;">Ár/éj</th>
+            <th style="padding: 12px; text-align: center; border: 1px solid #dee2e6;">Státusz</th>
+            <th style="padding: 12px; text-align: center; border: 1px solid #dee2e6;">Műveletek</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for room in rooms.items %}
+        <tr style="border-bottom: 1px solid #dee2e6;">
+            <td style="padding: 12px; border: 1px solid #dee2e6;">{{ room.room_number }}</td>
+            <td style="padding: 12px; border: 1px solid #dee2e6;">
+                {% if room.venue %}
+                    {{ room.venue.name }}
+                {% else %}
+                    <em>Nincs</em>
+                {% endif %}
+            </td>
+            <td style="padding: 12px; text-align: center; border: 1px solid #dee2e6;">{{ room.capacity }} fő</td>
+            <td style="padding: 12px; text-align: right; border: 1px solid #dee2e6;">{{ '%.2f'|format(room.price_per_night) }} Ft</td>
+            <td style="padding: 12px; text-align: center; border: 1px solid #dee2e6;">
+                <span style="display: inline-block; padding: 4px 8px; background-color: 
+                    {% if room.status.value == 'available' %}
+                        #28a745
+                    {% elif room.status.value == 'occupied' %}
+                        #dc3545
+                    {% elif room.status.value == 'maintenance' %}
+                        #ffc107
+                    {% else %}
+                        #6c757d
+                    {% endif %};
+                    color: white; border-radius: 3px; font-size: 12px;">
+                    {{ room.status.value }}
+                </span>
+            </td>
+            <td style="padding: 12px; text-align: center; border: 1px solid #dee2e6;">
+                <a href="{{ url_for('admin.room_edit', room_id=room.id) }}" style="padding: 5px 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px; margin-right: 5px;">
+                    ✏️ Szerkesztés
+                </a>
+                
+                {% if not room.bookings or room.bookings|length == 0 %}
+                    <form method="POST" action="{{ url_for('admin.room_delete', room_id=room.id) }}" style="display: inline-block;" onsubmit="return confirm('Biztosan törölsz?');">
+                        <button type="submit" style="padding: 5px 10px; background-color: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                            🗑️ Törlés
+                        </button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Lapozás -->
+<div style="margin-top: 20px; text-align: center;">
+    {% if rooms.has_prev %}
+        <a href="{{ url_for('admin.rooms_list', page=rooms.prev_num) }}" style="padding: 8px 12px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 3px; margin-right: 5px;">
+            ← Előző
+        </a>
+    {% endif %}
+    
+    <span style="margin: 0 10px;">
+        {{ rooms.page }} / {{ rooms.pages }}
+    </span>
+    
+    {% if rooms.has_next %}
+        <a href="{{ url_for('admin.rooms_list', page=rooms.next_num) }}" style="padding: 8px 12px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 3px;">
+            Következő →
+        </a>
+    {% endif %}
+</div>
+
+{% else %}
+<p>Nincsenek szobák az adatbázisban.</p>
+{% endif %}
+{% endblock %}

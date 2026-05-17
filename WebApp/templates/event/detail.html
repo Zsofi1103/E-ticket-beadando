@@ -96,6 +96,38 @@
     {% else %}
         <p><a href="{{ url_for('login') }}">Jelentkezz be</a> a kedvencekhez.</p>
     {% endif %}
+
+    <!-- Szobafoglalás szakasz -->
+    {% if available_rooms and available_rooms|length > 0 %}
+    <section style="margin-top: 30px; border-top: 2px solid #ddd; padding-top: 20px;">
+        <h2>Szállás az esemény helyszínén</h2>
+        <p>Foglaljon szobát az esemény helyszínén:</p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            {% for room in available_rooms %}
+            <div style="border: 1px solid #ccc; padding: 15px; border-radius: 5px; background-color: #f9f9f9;">
+                <h3>{{ room.room_number }}</h3>
+                <p><strong>Kapacitás:</strong> {{ room.capacity }} fő</p>
+                <p><strong>Ár/éj:</strong> {{ '%.2f'|format(room.price_per_night) }} Ft</p>
+                {% if room.description %}
+                    <p><strong>Leírás:</strong> {{ room.description }}</p>
+                {% endif %}
+                {% if room.equipment %}
+                    <p><strong>Felszereltség:</strong> {{ room.equipment }}</p>
+                {% endif %}
+                
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('guest.book_room', room_id=room.id) }}" style="display: inline-block; margin-top: 10px; padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 3px;">
+                        Szoba foglalása
+                    </a>
+                {% else %}
+                    <p style="color: #666; margin-top: 10px;"><a href="{{ url_for('login') }}">Jelentkezz be</a> a szobafoglaláshoz.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
 {% else %}
     <p>Nincs megjeleníthető esemény részlet.</p>
 {% endif %}

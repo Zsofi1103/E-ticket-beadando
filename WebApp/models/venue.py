@@ -10,6 +10,7 @@ class Venue(db.Model):
     capacity = db.Column(db.Integer, nullable=True)
 
     events = db.relationship('Event', back_populates='venue')
+    rooms = db.relationship('Room', back_populates='venue', cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<Venue id={self.id} name={self.name!r}>"

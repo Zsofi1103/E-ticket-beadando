@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+
+{% block title %}Foglalás részletei - Hotel Szállás{% endblock %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Foglalás #{{ booking.id }} részletei</h4>
+                    {% if booking.status.value == 'confirmed' %}
+                        <span class="badge bg-success">Megerősítve</span>
+                    {% elif booking.status.value == 'pending' %}
+                        <span class="badge bg-warning">Függőben</span>
+                    {% elif booking.status.value == 'checked_in' %}
+                        <span class="badge bg-info">Bejelentkezve</span>
+                    {% elif booking.status.value == 'checked_out' %}
+                        <span class="badge bg-secondary">Kijelentkezve</span>
+                    {% elif booking.status.value == 'cancelled' %}
+                        <span class="badge bg-danger">Lemondva</span>
+                    {% endif %}
+                </div>
+                
+                <div class="card-body">
+                    <!-- Szoba információ -->
+                    <h5 class="mb-3">Szoba információ</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p><strong>Szobaszám:</strong> {{ booking.room.room_number }}</p>
+                            <p><strong>Kapacitás:</strong> {{ booking.room.capacity }} fő</p>
+                            <p><strong>Ár/éj:</strong> {{ "{:,}".format(booking.room.price_per_night|int) }} Ft</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Vendégek:</strong> {{ booking.guests_count }} fő</p>
+                            <p><strong>Éjszakák száma:</strong> {{ booking.calculate_nights() }}</p>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <!-- Foglalási dátumok -->
+                    <h5 class="mb-3">Foglalási dátumok</h5>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Bejelentkezés:</strong><br>
+                                <i class="fas fa-calendar"></i> {{ booking.check_in.strftime('%Y. %m. %d. %H:%M') }}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <p>
+                                <strong>Kijelentkezés:</strong><br>
+                                <i class="fas fa-calendar"></i> {{ booking.check_out.strftime('%Y. %m. %d. %H:%M') }}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    {% if booking.check_in_time %}
+                        <p><strong>Tényleges bejelentkezés:</strong> {{ booking.check_in_time.strftime('%Y. %m. %d. %H:%M') }}</p>
+                    {% endif %}
+                    
+                    {% if booking.check_out_time %}
+                        <p><strong>Tényleges kijelentkezés:</strong> {{ booking.check_out_time.strftime('%Y. %m. %d. %H:%M') }}</p>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <!-- Extra szolgáltatások -->
+                    {% if services %}
+                        <h5 class="mb-3">Extra szolgáltatások</h5>
+                        <div class="table-responsive mb-4">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Szolgáltatás</th>
+                                        <th class="text-end">Ár</th>
+                                        <th class="text-center">Mennyiség</th>
+                                        <th class="text-end">Összesen</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for service in services %}
+                                        <tr>
+                                            <td>{{ service.service.name }}</td>
+                                            <td class="text-end">{{ "{:,}".format(service.service.price|int) }} Ft</td>
+                                            <td class="text-center">{{ service.quantity }}</td>
+                                            <td class="text-end">{{ "{:,}".format(service.service.price * service.quantity|int) }} Ft</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                    {% endif %}
+                    
+                    <!-- Ársummázat -->
+                    <h5 class="mb-3">Ársummázat</h5>
+                    <div class="bg-light p-3 rounded mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p>
+                                    <strong>Szoba:</strong> 
+                                    {{ booking.calculate_nights() }} éj × {{ "{:,}".format(booking.room.price_per_night|int) }} Ft
+                                </p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <p>
+                                    <strong>{{ "{:,}".format(booking.room.price_per_night * booking.calculate_nights()|int) }} Ft</strong>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        {% if services %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Extra szolgáltatások:</strong></p>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <p>
+                                        <strong>{{ "{:,}".format(sum(s.service.price * s.quantity for s in services)|int) }} Ft</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        {% endif %}
+                        
+                        <hr>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Teljes ár:</h5>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <h5 class="text-success">{{ "{:,}".format(booking.total_price|int) }} Ft</h5>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Műveleti gombók -->
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('guest.my_bookings') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Vissza
+                        </a>
+                        {% if booking.can_be_modified() %}
+                            <a href="{{ url_for('guest.edit_booking', booking_id=booking.id) }}" 
+                               class="btn btn-warning">
+                                <i class="fas fa-edit"></i> Módosítás
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('guest.download_invoice', booking_id=booking.id) }}" 
+                           class="btn btn-info">
+                            <i class="fas fa-file-pdf"></i> Számla letöltés
+                        </a>
+                        {% if booking.can_be_cancelled() %}
+                            <form method="POST" action="{{ url_for('guest.cancel_booking', booking_id=booking.id) }}" 
+                                  class="d-inline"
+                                  onsubmit="return confirm('Biztos lemondja a foglalást?')">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-times"></i> Lemondás
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

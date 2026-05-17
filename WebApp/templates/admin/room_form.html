@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>{% if room %}Szoba szerkesztése{% else %}Új szoba{% endif %}</h1>
+
+<form method="POST" style="max-width: 600px; margin: 20px auto;">
+    <div style="margin-bottom: 20px;">
+        <label for="room_number" style="display: block; margin-bottom: 5px; font-weight: bold;">Szobaszám *</label>
+        <input type="text" id="room_number" name="room_number" value="{{ room.room_number if room else '' }}" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="venue_id" style="display: block; margin-bottom: 5px; font-weight: bold;">Helyszín</label>
+        <select id="venue_id" name="venue_id" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            <option value="">— Nincs kiválasztva —</option>
+            {% for venue in venues %}
+                <option value="{{ venue.id }}" {% if room and room.venue_id == venue.id %}selected{% endif %}>
+                    {{ venue.name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="capacity" style="display: block; margin-bottom: 5px; font-weight: bold;">Kapacitás (fő) *</label>
+        <input type="number" id="capacity" name="capacity" value="{{ room.capacity if room else 1 }}" min="1" max="10" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="price_per_night" style="display: block; margin-bottom: 5px; font-weight: bold;">Ár/éj (Ft) *</label>
+        <input type="number" id="price_per_night" name="price_per_night" value="{{ room.price_per_night if room else 0 }}" min="0" step="0.01" required style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="description" style="display: block; margin-bottom: 5px; font-weight: bold;">Leírás</label>
+        <textarea id="description" name="description" rows="4" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">{{ room.description if room else '' }}</textarea>
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="equipment" style="display: block; margin-bottom: 5px; font-weight: bold;">Felszereltség (vesszővel elválasztva)</label>
+        <textarea id="equipment" name="equipment" rows="2" placeholder="pl: TV, Klimatizálás, Saját fürdőszoba" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">{{ room.equipment if room else '' }}</textarea>
+    </div>
+    
+    <div style="margin-bottom: 20px;">
+        <label for="status" style="display: block; margin-bottom: 5px; font-weight: bold;">Státusz</label>
+        <select id="status" name="status" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+            {% for status in statuses %}
+                <option value="{{ status.name }}" {% if room and room.status.name == status.name %}selected{% endif %}>
+                    {{ status.value }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    <div style="margin-top: 30px; text-align: center;">
+        <button type="submit" style="padding: 10px 30px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-right: 10px;">
+            💾 Mentés
+        </button>
+        <a href="{{ url_for('admin.rooms_list') }}" style="display: inline-block; padding: 10px 30px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
+            ← Vissza
+        </a>
+    </div>
+</form>
+{% endblock %}

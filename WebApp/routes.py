@@ -307,16 +307,102 @@ def event_detail(event_id: int):
     event = em.get_event(event_id)
     form = ReservationForm()
     times = []
+    available_rooms = []
+    
     try:
         times = db.session.query(EventTime).filter_by(event_id=event.id).order_by(EventTime.year, EventTime.month, EventTime.day, EventTime.hour, EventTime.minute).all()
     except Exception as ex:
         app.logger.debug('Could not load EventTime rows: %s', ex)
         times = []
-    return render_template('event/detail.html', event=event, reservation_form=form, times=times)
+    
+    # Szobák betöltése az esemény helyszínéhez
+    try:
+        if hasattr(event, 'venue') and event.venue:
+            from WebApp.models.room import Room
+            available_rooms = db.session.query(Room).filter(
+                Room.venue_id == event.venue.id,
+                Room.status == 'available'
+            ).all()
+    except Exception as ex:
+        app.logger.debug('Could not load rooms for venue: %s', ex)
+        available_rooms = []
+    
+    return render_template('event/detail.html', event=event, reservation_form=form, times=times, available_rooms=available_rooms)
 
 
 @app.route('/api/events')
 def api_events():
+    """
+    Get all events - REST API endpoint
+    ---
+    tags:
+      - Events
+    summary: List all events
+    description: Retrieve all events with pagination and optional filtering
+    parameters:
+      - name: page
+        in: query
+        type: integer
+        required: false
+        default: 1
+        description: Page number for pagination
+      - name: category_id
+        in: query
+        type: integer
+        required: false
+        description: Filter by category ID
+    responses:
+      200:
+        description: Successfully retrieved events
+        schema:
+          type: object
+          properties:
+            events:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  price:
+                    type: number
+                    format: float
+                  start_at:
+                    type: string
+                    format: datetime
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+                  venue:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      name:
+                        type: string
+                      address:
+                        type: string
+                  created_at:
+                    type: string
+                    format: datetime
+      500:
+        description: Server error - could not retrieve events
+        schema:
+          type: object
+          properties:
+            error:
+              type: string
+    """
     try:
         events = db.session.query(Event).all()
         out = []
